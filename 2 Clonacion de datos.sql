@@ -1,20 +1,28 @@
 --clonacion de informacion
 SET IDENTITY_INSERT [dbo].[ArchivosCanvas] ON 
     INSERT INTO [dbo].[ArchivosCanvas]
-           ([Id],[Periodo]
+           ([Id]
+           ,[Periodo]
            ,[CRN]
            ,[PIDMProfesor]
            ,[PIDMAlumno]
            ,[GradeNum]
            ,[GradeAlfa]
-           ,[Procesado])
+           ,[Procesado]
+           ,[Horas]
+	         ,[Destacado]
+           ,[ComentarioDestacado])
 		   select [ID],[PERIODO]
            ,[CRN]
            ,[PIDM_PROFESOR]
            ,[PIDM_ALUMNO]
            ,[GRADE_NUM]
            ,[GRADE_ALFA]
-           ,[PROCESADO] from ARCHIVO_CANVAS;
+           ,[PROCESADO]
+           ,0
+           ,0
+           ,''
+           from ARCHIVO_CANVAS;
 SET IDENTITY_INSERT [dbo].[ArchivosCanvas] OFF
 GO
 SET IDENTITY_INSERT [dbo].[ArchivosCanvasFiltrado] ON 
@@ -25,14 +33,21 @@ SET IDENTITY_INSERT [dbo].[ArchivosCanvasFiltrado] ON
            ,[PIDMAlumno]
            ,[GradeNum]
            ,[GradeAlfa]
-           ,[Procesado])
+           ,[Procesado]
+           ,[Horas]
+	         ,[Destacado]
+           ,[ComentarioDestacado])
 		   select [ID],[PERIODO]
            ,[CRN]
            ,[PIDM_PROFESOR]
            ,[PIDM_ALUMNO]
            ,[GRADE_NUM]
            ,[GRADE_ALFA]
-           ,[PROCESADO] from ARCHIVO_CANVAS_FILTRADO;
+           ,[PROCESADO]
+           ,0
+           ,0
+           ,''
+           from ARCHIVO_CANVAS_FILTRADO;
 SET IDENTITY_INSERT [dbo].[ArchivosCanvasFiltrado] OFF
 GO
 SET IDENTITY_INSERT [dbo].[ArchivosCargaCalificaciones] ON 
@@ -206,21 +221,22 @@ SET IDENTITY_INSERT [dbo].[Bitacora_ProcesoAutomatico] ON
       FROM [dbo].[BITACORA_PROCESO_AUTOMATICO]
 SET IDENTITY_INSERT [dbo].[Bitacora_ProcesoAutomatico] OFF
 GO
-SET IDENTITY_INSERT [dbo].[Bitacora_RolesAdmin] ON 
-    INSERT INTO [dbo].[Bitacora_RolesAdmin]
-           ([Id]
-      ,[Accion]
-      ,[FechaRegistro]
-      ,[UsuarioLogin]
-      ,[Comentarios])
-    SELECT [ID]
-      ,[ACCION]
-      ,[FECHA_REGISTRO]
-      ,[USUARIO_LOGIN]
-      ,[COMENTARIOS]
-  FROM [dbo].[BITACORA_ROLES_ADMIN]
-SET IDENTITY_INSERT [dbo].[Bitacora_RolesAdmin] OFF
+-- SET IDENTITY_INSERT [dbo].[Bitacora_RolesAdmin] ON 
+--     INSERT INTO [dbo].[Bitacora_RolesAdmin]
+--            ([Id]
+--       ,[Accion]
+--       ,[FechaRegistro]
+--       ,[UsuarioLogin]
+--       ,[Comentarios])
+--     SELECT [ID]
+--       ,[ACCION]
+--       ,[FECHA_REGISTRO]
+--       ,[USUARIO_LOGIN]
+--       ,[COMENTARIOS]
+--   FROM [dbo].[BITACORA_ROLES_ADMIN]
+-- SET IDENTITY_INSERT [dbo].[Bitacora_RolesAdmin] OFF
 GO
+--validarlo
 SET IDENTITY_INSERT [dbo].[Bitacora_SubPeriodoCampus] ON 
     INSERT INTO [dbo].[Bitacora_SubPeriodoCampus]
            ([Id]
@@ -268,7 +284,10 @@ SET IDENTITY_INSERT [dbo].[CalificacionesEnviadasBanner] ON
       ,[FechaAgregado]
       ,[UsuarioCalifico]
       ,[Comentarios]
-      ,[SeEnvio])
+      ,[SeEnvio]
+      ,[Horas]
+      ,[Destacado]
+      ,[ComentarioDestacado])
             SELECT [ID]
       ,[TERM]
       ,[CRN]
@@ -279,6 +298,9 @@ SET IDENTITY_INSERT [dbo].[CalificacionesEnviadasBanner] ON
       ,[USUARIO_CALIFICO]
       ,[COMENTARIOS]
       ,[SE_ENVIO]
+      ,0
+      ,0
+      ,''
   FROM [dbo].[CALIFICACIONES_ENVIADAS_BANNER]
 SET IDENTITY_INSERT [dbo].[CalificacionesEnviadasBanner] OFF
 GO
@@ -304,13 +326,15 @@ SET IDENTITY_INSERT [dbo].[CalificacionesPermitidas] ON
       ,[CalificacionAbreviada]
       ,[ClaveEjerAcadEfectivo]
       ,[ClaveEjerAcadFin]
-      ,[CANVAS])
+      ,[CANVAS]
+      ,[PROCESO])
            SELECT [ID]
       ,[CLAVE_CALIFICACION]
       ,[CALIFICACION_ABREVIADA]
       ,[CLAVE_EJER_ACAD_EFECTIVO]
       ,case when [CLAVE_EJER_ACAD_FIN] is NULL then ''  else [CLAVE_EJER_ACAD_FIN] end as [CLAVE_EJER_ACAD_FIN]
       ,[CANVAS]
+      ,0
   FROM [dbo].[CALIFICACIONES_PERMITIDAS]
 SET IDENTITY_INSERT [dbo].[CalificacionesPermitidas] OFF
 GO
@@ -362,15 +386,19 @@ SET IDENTITY_INSERT [dbo].[MateriasExclusiones] ON
       ,[Curso]
       ,[ClaveMateria]
       ,[NombreMateria]
-      ,[Grupo]
-      ,[CRN])
+      ,[TERM]
+      ,[Vigencia]
+      ,[Activo]
+	    ,[FechaAgregado])
             SELECT [ID]
       ,[MATERIA]
       ,[CURSO]
       ,[CLAVE_MATERIA]
       ,[NOMBRE_MATERIA]
       ,[GRUPO]
-      ,[CRN]
+      ,DBO.dReturnDate(getdate())
+      ,0
+      ,DBO.dReturnDate(getdate())
   FROM [dbo].[MATERIAS_EXCLUSIONES]
 SET IDENTITY_INSERT [dbo].[MateriasExclusiones] OFF
 GO
@@ -382,18 +410,23 @@ SET IDENTITY_INSERT [dbo].[MateriasNormativas] ON
       ,[ClaveMateria]
       ,[NombreMateria]
       ,[TERM]
-      ,[CRN]
       ,[NombreNormativa]
-      ,[NormativaId])
+      ,[NormativaId]
+      ,[Vigencia]
+	    ,[FechaAgregado]
+	    ,[Activo]
+      )
         SELECT [ID]
       ,[MATERIA]
       ,[CURSO]
       ,[CLAVE_MATERIA]
       ,[NOMBRE_MATERIA]
       ,[TERM]
-      ,[CRN]
       ,[NOMBRE_NORMATIVA]
       ,[ID_NORMATIVA]
+      ,DBO.dReturnDate(getdate())
+      ,DBO.dReturnDate(getdate())
+      ,0
     FROM [dbo].[MATERIAS_NORMATIVAS]
 SET IDENTITY_INSERT [dbo].[MateriasNormativas] OFF
 GO
@@ -421,8 +454,8 @@ SET IDENTITY_INSERT [dbo].[Normativas] ON
       ,[INTERVALO_HASTA]
       ,[DESCRIPCION]
       ,[NOTA]
-      ,[IND_ACTIVO],
-      [FECHA_AGREGADO]
+      ,[IND_ACTIVO]
+      ,DBO.dReturnDate(getdate())
   FROM [dbo].[NORMATIVAS_tmp]
 SET IDENTITY_INSERT [dbo].[Normativas] OFF
 GO
@@ -483,14 +516,14 @@ SET IDENTITY_INSERT [dbo].[Usuarios] ON
       ,[Nombre]
       ,[Apellidos]
       ,[Correo]
-      --,[CampusId]
+      ,[Activo]
       ,[DTAgregado])
             SELECT [ID]
         ,[NOMINA]
         ,[NOMBRE]
         ,[APELLIDOS]
         ,[CORREO]
-        --,[CAMPUS-ID]
+        ,1
         ,[DT-AGREGARO]
     FROM [dbo].[USUARIOS_tmp]
 SET IDENTITY_INSERT [dbo].[Usuarios] OFF
