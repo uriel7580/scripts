@@ -416,6 +416,7 @@ GO
 CREATE TABLE [dbo].[CalificacionesPermitidas](
 	[Id] [int] IDENTITY(1,1) NOT NULL,
 	[ClaveCalificacion] [varchar](10) NOT NULL,
+	[Descripcion] [varchar](150) NOT NULL,
 	[CalificacionAbreviada] [varchar](10) NOT NULL,
 	[ClaveEjerAcadEfectivo] [int] NOT NULL,
 	[ClaveEjerAcadFin] [varchar](10) NOT NULL,

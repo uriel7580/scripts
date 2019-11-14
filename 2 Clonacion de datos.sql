@@ -323,6 +323,7 @@ SET IDENTITY_INSERT [dbo].[CalificacionesPermitidas] ON
     INSERT INTO [dbo].[CalificacionesPermitidas]
            ([Id]
       ,[ClaveCalificacion]
+      ,[Descripcion]
       ,[CalificacionAbreviada]
       ,[ClaveEjerAcadEfectivo]
       ,[ClaveEjerAcadFin]
@@ -330,6 +331,7 @@ SET IDENTITY_INSERT [dbo].[CalificacionesPermitidas] ON
       ,[PROCESO])
            SELECT [ID]
       ,[CLAVE_CALIFICACION]
+      ,''
       ,[CALIFICACION_ABREVIADA]
       ,[CLAVE_EJER_ACAD_EFECTIVO]
       ,case when [CLAVE_EJER_ACAD_FIN] is NULL then ''  else [CLAVE_EJER_ACAD_FIN] end as [CLAVE_EJER_ACAD_FIN]
