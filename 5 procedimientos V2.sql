@@ -1,4 +1,6 @@
-/****** Object:  StoredProcedure [dbo].[spAlumnosPorGrupo_ObtieneInformacion]    Script Date: 28/10/2019 10:59:06 a. m. ******/
+USE [Calificaciones]
+GO
+/****** Object:  StoredProcedure [dbo].[spAlumnosPorGrupo_ObtieneInformacion]    Script Date: 28/11/2019 03:28:49 p. m. ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -142,7 +144,7 @@ CREATE PROCEDURE [dbo].[spAlumnosPorGrupo_ObtieneInformacion]
 		SELECT ID, CRN, PIDM, MATRICULA, NOMBRE, NOMINA, NOMBRE_PROFESOR, CALIFICACION FROM @ALUMNOS_MOSTRAR
 	END
 GO
-/****** Object:  StoredProcedure [dbo].[spArchivoCanvas_InsertaValores]    Script Date: 28/10/2019 10:59:06 a. m. ******/
+/****** Object:  StoredProcedure [dbo].[spArchivoCanvas_InsertaValores]    Script Date: 28/11/2019 03:28:50 p. m. ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -178,7 +180,7 @@ CREATE PROCEDURE [dbo].[spArchivoCanvas_InsertaValores]
 		END CATCH
 	END
 GO
-/****** Object:  StoredProcedure [dbo].[spArchivosCanvas_CargarValores]    Script Date: 28/10/2019 10:59:06 a. m. ******/
+/****** Object:  StoredProcedure [dbo].[spArchivosCanvas_CargarValores]    Script Date: 28/11/2019 03:28:50 p. m. ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -206,7 +208,7 @@ CREATE PROCEDURE [dbo].[spArchivosCanvas_CargarValores]
 			SET NOCOUNT ON;
 			DECLARE @RES_EXISTE		INT
 			-- INSERTA LOS DATOS EN ArchivosCanvas
-			IF @ACCION = 1
+			IF (@PIDM_PROFESOR  != null AND	@PIDM_ALUMNO !=null) 
 				BEGIN	
 					SET @RES_EXISTE  = (SELECT Id FROM dbo.ArchivosCanvas 
 										WHERE Periodo=@PERIODO AND CRN=@CRN AND PIDMAlumno=@PIDM_ALUMNO)
@@ -225,22 +227,30 @@ CREATE PROCEDURE [dbo].[spArchivosCanvas_CargarValores]
 						END
 					
 				END
+			ELSE
+				BEGIN
+				declare @error varchar(max)='Pidm del Alumno o Pidm del profesor nullos para crn: '+@CRN
+					EXEC DBO.spBitacoras_RegistraBitacora 9, @PERIODO, @CRN, @PIDM_PROFESOR, NULL, NULL, NULL,@PIDM_ALUMNO,'ERROR','PROCESO AUTOMATICO', NULL, NULL, NULL,@error 
+				END
 
 			EXEC DBO.spBitacoras_RegistraBitacora 9, @PERIODO, @CRN, @PIDM_PROFESOR, NULL, NULL, NULL,@PIDM_ALUMNO,'FLUJO','PROCESO AUTOMATICO', NULL, NULL, NULL,'Proceso Automatico agregando a tabla Archivo canvas cada alumno' 
 		END TRY
 		BEGIN CATCH
-			SELECT
-				ERROR_NUMBER() AS ErrorNumber  
-				,ERROR_SEVERITY() AS ErrorSeverity  
-				,ERROR_STATE() AS ErrorState  
-				,ERROR_PROCEDURE() AS ErrorProcedure  
-				,ERROR_LINE() AS ErrorLine  
-				,ERROR_MESSAGE() AS ErrorMessage; 
-			EXEC DBO.spBitacoras_RegistraBitacora 9, @PERIODO, @CRN, @PIDM_PROFESOR, NULL, NULL, NULL,@PIDM_ALUMNO,'FLUJO','PROCESO AUTOMATICO', NULL, NULL, NULL,'Error en proceso Automatico al agregar a tabla Archivo canvas cada alumno' 
+			Declare @errortry varchar(max)
+			='Error en proceso Automatico al agregar a tabla Archivo canvas cada alumno Detalle sql:'+(SELECT ERROR_MESSAGE() AS ErrorMessage);
+			Declare @errornumber varchar(50)='Error'; 
+			--SELECT
+			--	ERROR_NUMBER() AS ErrorNumber  
+			--	,ERROR_SEVERITY() AS ErrorSeverity  
+			--	,ERROR_STATE() AS ErrorState  
+			--	,ERROR_PROCEDURE() AS ErrorProcedure  
+			--	,ERROR_LINE() AS ErrorLine  
+			--	,ERROR_MESSAGE() AS ErrorMessage; 
+			EXEC DBO.spBitacoras_RegistraBitacora 9, @PERIODO, @CRN, @PIDM_PROFESOR, NULL, NULL, NULL,@PIDM_ALUMNO,@errornumber,'PROCESO AUTOMATICO', NULL, NULL, NULL,@errortry 
 		END CATCH
 	END
 GO
-/****** Object:  StoredProcedure [dbo].[spArchivosCanvasFiltrado_CargarValores]    Script Date: 28/10/2019 10:59:06 a. m. ******/
+/****** Object:  StoredProcedure [dbo].[spArchivosCanvasFiltrado_CargarValores]    Script Date: 28/11/2019 03:28:50 p. m. ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -319,7 +329,7 @@ CREATE PROCEDURE [dbo].[spArchivosCanvasFiltrado_CargarValores]
 		DELETE DBO.ArchivosCanvas WHERE (Periodo = @TERM AND CRN = @CRN)
 	END
 GO
-/****** Object:  StoredProcedure [dbo].[spBD_ProbarConexion]    Script Date: 28/10/2019 10:59:06 a. m. ******/
+/****** Object:  StoredProcedure [dbo].[spBD_ProbarConexion]    Script Date: 28/11/2019 03:28:50 p. m. ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -337,7 +347,7 @@ CREATE PROCEDURE [dbo].[spBD_ProbarConexion]
 		SELECT 'SI HAY CONEXION CON LA BASE DE DATOS' AS MENSAJE
 	END
 GO
-/****** Object:  StoredProcedure [dbo].[spBitacoras_RegistraBitacora]    Script Date: 28/10/2019 10:59:06 a. m. ******/
+/****** Object:  StoredProcedure [dbo].[spBitacoras_RegistraBitacora]    Script Date: 28/11/2019 03:28:50 p. m. ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -440,7 +450,7 @@ CREATE PROCEDURE [dbo].[spBitacoras_RegistraBitacora]
 
 
 GO
-/****** Object:  StoredProcedure [dbo].[spCalificacionesEnExcepcion_Revisar]    Script Date: 28/10/2019 10:59:06 a. m. ******/
+/****** Object:  StoredProcedure [dbo].[spCalificacionesEnExcepcion_Revisar]    Script Date: 28/11/2019 03:28:50 p. m. ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -564,25 +574,25 @@ CREATE PROCEDURE [dbo].[spCalificacionesEnExcepcion_Revisar]
 				WHERE ACF.Periodo=@TERM AND ACF.CRN=@CRN
 		END TRY
 		BEGIN CATCH
-			SELECT
-				ERROR_NUMBER() AS ErrorNumber  
-				,ERROR_SEVERITY() AS ErrorSeverity  
-				,ERROR_STATE() AS ErrorState  
-				,ERROR_PROCEDURE() AS ErrorProcedure  
-				,ERROR_LINE() AS ErrorLine  
-				,ERROR_MESSAGE() AS ErrorMessage; 
+			--SELECT
+			--	ERROR_NUMBER() AS ErrorNumber  
+			--	,ERROR_SEVERITY() AS ErrorSeverity  
+			--	,ERROR_STATE() AS ErrorState  
+			--	,ERROR_PROCEDURE() AS ErrorProcedure  
+			--	,ERROR_LINE() AS ErrorLine  
+			--	,ERROR_MESSAGE() AS ErrorMessage; 
 		END CATCH
 		
 	END--END FINAL
 GO
-/****** Object:  StoredProcedure [dbo].[spCalificacionesEnviadasBanner_ActualizaEstatus]    Script Date: 28/10/2019 10:59:06 a. m. ******/
+/****** Object:  StoredProcedure [dbo].[spCalificacionesEnviadasBanner_ActualizaEstatus]    Script Date: 28/11/2019 03:28:50 p. m. ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
 CREATE PROCEDURE [dbo].[spCalificacionesEnviadasBanner_ActualizaEstatus] 
 	@TERM		VARCHAR(20),
-	@CRN		INT
+	@CRN		varchar(50)
 	
 	AS
 	
@@ -594,17 +604,11 @@ CREATE PROCEDURE [dbo].[spCalificacionesEnviadasBanner_ActualizaEstatus]
 			WHERE (TERM = @TERM AND CRN = @CRN)
 		END TRY
 		BEGIN CATCH
-			SELECT
-				ERROR_NUMBER() AS ErrorNumber  
-				,ERROR_SEVERITY() AS ErrorSeverity  
-				,ERROR_STATE() AS ErrorState  
-				,ERROR_PROCEDURE() AS ErrorProcedure  
-				,ERROR_LINE() AS ErrorLine  
-				,ERROR_MESSAGE() AS ErrorMessage; 
+			
 		END CATCH
 	END
 GO
-/****** Object:  StoredProcedure [dbo].[spCanvas_ValidarGrupos]    Script Date: 28/10/2019 10:59:06 a. m. ******/
+/****** Object:  StoredProcedure [dbo].[spCanvas_ValidarGrupos]    Script Date: 28/11/2019 03:28:50 p. m. ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -632,7 +636,7 @@ CREATE PROCEDURE [dbo].[spCanvas_ValidarGrupos]
 			DECLARE @RES_COURSE			VARCHAR(10)
 			DECLARE @RES_SUBJECT		VARCHAR(10)
 			DECLARE @ATRIBUTO_PERIODO_NORMAL_O_SEMANATEC VARCHAR(10) 
-			DECLARE @REGISTRO_CalificacionesPermitidas VARCHAR(3000)
+			DECLARE @REGISTRO_CalificacionesPermitidas VARCHAR(8000)
 			DECLARE @REGISTRO_CalificacionesSemanaTec VARCHAR(3000)
 			DECLARE @Periodo_de_grupo			VARCHAR(20)
 			DECLARE @RES_SUBPeriodo_ACTIVO		INT
@@ -641,12 +645,27 @@ CREATE PROCEDURE [dbo].[spCanvas_ValidarGrupos]
 			DECLARE @IdCampus			VARCHAR(10)
 			DECLARE @PeriodoLargo		VARCHAR(20)
 			DECLARE @IS_VALID_PMT6		INT
+			DECLARE @ClaveMateria		VARCHAR(20)
+			DECLARE @IntMinMax			VARCHAR(20)
+			DECLARE @HorasRep			INT
 
 			--Traemos datos de fecha de inicio y fin del subperiodo por el campus
 			SET @IdCampus = (SELECT CAMPUS FROM Replicas.dbo.GRUPOS WHERE TERM = @TERM AND CRN = @CRN);
 			SET @PeriodoLargo = dbo.vCReturnSubPeriodo(@TERM, @CRN, 1)
 			SET @FechaInicio = (SELECT FechaDesde FROM SubperiodosCampus WHERE IdSubperiodo = @PeriodoLargo AND IdCampus = @IdCampus)
 			SET @FechaFin = (SELECT FechaHasta FROM SubperiodosCampus WHERE IdSubperiodo = @PeriodoLargo AND IdCampus = @IdCampus)
+			
+
+			--Servicio Social
+			IF EXISTS(SELECT CLAVE_ATRIBUTO FROM Replicas.dbo.GRUPO_ATRIBUTOS WHERE CRN=@CRN AND TERM=@TERM AND CLAVE_ATRIBUTO='UFSS')
+			BEGIN
+				SET @ClaveMateria = (SELECT MATERIA FROM Replicas.dbo.GRUPOS WHERE CRN = @CRN AND TERM=@TERM)
+				SET @IntMinMax =(SELECT (CONVERT(VARCHAR(20), HorasMinimas) + '-' + CONVERT(VARCHAR(20), HorasMaximas)) AS HorasServicioSocial FROM MateriasServicioSocial WHERE ClaveMateria=@ClaveMateria);
+				SET @HorasRep = (SELECT HorasReprobado FROM MateriasServicioSocial WHERE ClaveMateria=@ClaveMateria AND TERM=@TERM)			
+			END
+			
+			--Servicio Social
+
 			--IF 1
 			IF EXISTS (SELECT TOP(1) TERM,CRN, FechaAgregado FROM CalificacionesEnviadasBanner
 				WHERE TERM=@TERM AND CRN=@CRN ORDER BY FechaAgregado ASC)
@@ -711,20 +730,25 @@ CREATE PROCEDURE [dbo].[spCanvas_ValidarGrupos]
 											ELSE --6.1
 												BEGIN --6.1
 													SET @REGISTRO_CalificacionesPermitidas = (SELECT STUFF(
-													(SELECT ',' + (ISNULL([ClaveCalificacion]+'-'+[CalificacionAbreviada], 'NULL') )		
+													(SELECT ',' + (ISNULL([ClaveCalificacion]+'-'+ Descripcion, 'NULL') )		
 													FROM [dbo].[CalificacionesPermitidas]
 													WHERE CANVAS = 1 FOR XML PATH('')),1,1, '') AS CalificacionesPermitidas)
 
 													IF EXISTS(SELECT '3' AS MENSAJE, CL, A, AI, CA, @REGISTRO_CalificacionesPermitidas AS 'CALIFICACIONES PERMITIDAS', --6.1.1
 															@FechaInicio AS 'FechaInicio', @FechaFin AS 'FechaFin',
-															@REGISTRO_CalificacionesSemanaTec AS 'NormativaSemanaTEC'
+															@REGISTRO_CalificacionesSemanaTec AS 'NormativaSemanaTEC',
+															@IntMinMax AS 'HorasServicioSocial',
+															@HorasRep AS 'HorasServicioSocialReprobado'
 															FROM REPLICAS.DBO.MATERIAS_ATRIBUTOS MA
 															INNER JOIN REPLICAS.DBO.GRUPOS G ON MA.Subject=G.Subject AND MA.Course = G.Course
 															WHERE G.TERM = @TERM AND G.CRN=@CRN)
 														BEGIN--6.1.1
 															SELECT '3' AS MENSAJE, CL, A, AI, CA, @REGISTRO_CalificacionesPermitidas AS 'CALIFICACIONES PERMITIDAS',
 															@FechaInicio AS 'FechaInicio', @FechaFin AS 'FechaFin',
-															@REGISTRO_CalificacionesSemanaTec AS 'NormativaSemanaTEC'
+															@REGISTRO_CalificacionesSemanaTec AS 'NormativaSemanaTEC',
+															@IntMinMax AS 'HorasServicioSocial',
+															@HorasRep AS 'HorasServicioSocialReprobado'
+															
 																FROM REPLICAS.DBO.MATERIAS_ATRIBUTOS MA
 																INNER JOIN REPLICAS.DBO.GRUPOS G ON MA.Subject=G.Subject AND MA.Course = G.Course
 															WHERE G.TERM = @TERM AND G.CRN=@CRN
@@ -743,20 +767,24 @@ CREATE PROCEDURE [dbo].[spCanvas_ValidarGrupos]
 									ELSE --6
 										BEGIN--6
 											SET @REGISTRO_CalificacionesPermitidas = (SELECT STUFF(
-												(SELECT ',' + (ISNULL([ClaveCalificacion]+'-'+[CalificacionAbreviada], 'NULL') )		
+												(SELECT ',' + (ISNULL([ClaveCalificacion]+'-'+ Descripcion, 'NULL') )		
 												FROM [dbo].[CalificacionesPermitidas]
 												WHERE CANVAS = 1 FOR XML PATH('')),1,1, '') AS CalificacionesPermitidas)
 
 											IF EXISTS(SELECT '3' AS MENSAJE, CL, A, AI, CA, @REGISTRO_CalificacionesPermitidas AS 'CALIFICACIONES PERMITIDAS', --6.2
 													@FechaInicio AS 'FechaInicio', @FechaFin AS 'FechaFin',
-													@REGISTRO_CalificacionesSemanaTec AS 'NormativaSemanaTEC'
+													@REGISTRO_CalificacionesSemanaTec AS 'NormativaSemanaTEC',
+													@IntMinMax AS 'HorasServicioSocial',
+													@HorasRep AS 'HorasServicioSocialReprobado'
 													FROM REPLICAS.DBO.MATERIAS_ATRIBUTOS MA
 													INNER JOIN REPLICAS.DBO.GRUPOS G ON MA.Subject=G.Subject AND MA.Course = G.Course
 													WHERE G.TERM = @TERM AND G.CRN=@CRN)
 												BEGIN--6.2
 													SELECT '3' AS MENSAJE, CL, A, AI, CA, @REGISTRO_CalificacionesPermitidas AS 'CALIFICACIONES PERMITIDAS',
 													@FechaInicio AS 'FechaInicio', @FechaFin AS 'FechaFin',
-													@REGISTRO_CalificacionesSemanaTec AS 'NormativaSemanaTEC'
+													@REGISTRO_CalificacionesSemanaTec AS 'NormativaSemanaTEC',
+													@IntMinMax AS 'HorasServicioSocial',
+													@HorasRep AS 'HorasServicioSocialReprobado'
 														FROM REPLICAS.DBO.MATERIAS_ATRIBUTOS MA
 														INNER JOIN REPLICAS.DBO.GRUPOS G ON MA.Subject=G.Subject AND MA.Course = G.Course
 													WHERE G.TERM = @TERM AND G.CRN=@CRN
@@ -777,20 +805,24 @@ CREATE PROCEDURE [dbo].[spCanvas_ValidarGrupos]
 									IF @IS_VALID_PMT6 = 1 --5.1
 										BEGIN--5.1
 											SET @REGISTRO_CalificacionesPermitidas = (SELECT STUFF(
-												(SELECT ',' + (ISNULL([ClaveCalificacion]+'-'+[CalificacionAbreviada], 'NULL') )		
+												(SELECT ',' + (ISNULL([ClaveCalificacion]+'-'+ Descripcion, 'NULL') )		
 												FROM [dbo].[CalificacionesPermitidas]
 												WHERE CANVAS = 1 FOR XML PATH('')),1,1, '') AS CalificacionesPermitidas)
 
 											IF EXISTS(SELECT '3' AS MENSAJE, CL, A, AI, CA, @REGISTRO_CalificacionesPermitidas AS 'CALIFICACIONES PERMITIDAS',--5.1.1
 													@FechaInicio AS 'FechaInicio', @FechaFin AS 'FechaFin',
-													@REGISTRO_CalificacionesSemanaTec AS 'NormativaSemanaTEC'
+													@REGISTRO_CalificacionesSemanaTec AS 'NormativaSemanaTEC',
+													@IntMinMax AS 'HorasServicioSocial',
+													@HorasRep AS 'HorasServicioSocialReprobado'
 													FROM REPLICAS.DBO.MATERIAS_ATRIBUTOS MA
 													INNER JOIN REPLICAS.DBO.GRUPOS G ON MA.Subject=G.Subject AND MA.Course = G.Course
 													WHERE G.TERM = @TERM AND G.CRN=@CRN)
 												BEGIN--5.1.1
 													SELECT '3' AS MENSAJE, CL, A, AI, CA, @REGISTRO_CalificacionesPermitidas AS 'CALIFICACIONES PERMITIDAS',
 													@FechaInicio AS 'FechaInicio', @FechaFin AS 'FechaFin',
-													@REGISTRO_CalificacionesSemanaTec AS 'NormativaSemanaTEC'
+													@REGISTRO_CalificacionesSemanaTec AS 'NormativaSemanaTEC',
+													@IntMinMax AS 'HorasServicioSocial',
+													@HorasRep AS 'horasServicioSocialReprobado'
 														FROM REPLICAS.DBO.MATERIAS_ATRIBUTOS MA
 														INNER JOIN REPLICAS.DBO.GRUPOS G ON MA.Subject=G.Subject AND MA.Course = G.Course
 													WHERE G.TERM = @TERM AND G.CRN=@CRN
@@ -825,7 +857,7 @@ CREATE PROCEDURE [dbo].[spCanvas_ValidarGrupos]
 		END CATCH
 END	--begin first	
 GO
-/****** Object:  StoredProcedure [dbo].[spConsulta_ConsultarMateriasPorAlumno]    Script Date: 28/10/2019 10:59:06 a. m. ******/
+/****** Object:  StoredProcedure [dbo].[spConsulta_ConsultarMateriasPorAlumno]    Script Date: 28/11/2019 03:28:50 p. m. ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -844,7 +876,7 @@ BEGIN
 	-- SET NOCOUNT ON added to prevent extra result sets from
 	-- interfering with SELECT statements.
 	SET NOCOUNT ON;
-	SELECT 
+	SELECT DISTINCT
 	g.CRN, 
 	g.MATERIA, 
 	m.NOMBRE, 
@@ -858,8 +890,8 @@ BEGIN
 	INNER JOIN [Replicas].[dbo].[GRUPO_ALUMNOS] ga ON a.MATRICULA = ga.MATRICULA
 	INNER JOIN [Replicas].[dbo].[GRUPOS] g ON ga.CRN = g.CRN
 	INNER JOIN [Replicas].[dbo].[MATERIAS] m ON g.COURSE = m.COURSE AND g.SUBJECT = m.SUBJECT
-	LEFT JOIN [Replicas].[dbo].[NOMINA_GRUPO] ng ON ng.CRN = g.CRN
-	LEFT JOIN [Replicas].[dbo].[PROFESORES] p ON p.NOMINA = ng.NOMINA
+	LEFT JOIN [Replicas].[dbo].[NOMINA_GRUPO] ng ON ng.CRN = g.CRN and ng.NOMINA= g.NOMINA
+	LEFT JOIN [Replicas].[dbo].[PROFESORES] p ON p.NOMINA = g.NOMINA
 	LEFT JOIN CalificacionesEnviadasBanner ceb ON ceb.MatriculaAlumno = a.MATRICULA AND ceb.CRN = g.CRN
 	LEFT JOIN [Replicas].[dbo].[PROFESORES] Q ON Q.NOMINA = ceb.UsuarioCalifico
 	WHERE a.MATRICULA = @MATRICULA
@@ -867,7 +899,7 @@ BEGIN
 	-- SELECT <@Param1, sysname, @p1>, <@Param2, sysname, @p2>
 END
 GO
-/****** Object:  StoredProcedure [dbo].[spCorreo_EnviaCorreos]    Script Date: 28/10/2019 10:59:06 a. m. ******/
+/****** Object:  StoredProcedure [dbo].[spCorreo_EnviaCorreos]    Script Date: 28/11/2019 03:28:50 p. m. ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -904,14 +936,14 @@ CREATE PROCEDURE [dbo].[spCorreo_EnviaCorreos]
 		VALUES (@PERIODO, @CRN, @NOMINA, @CORREO, @salida, @mensajeError, @mailId, @LOGIN);
 	END
 GO
-/****** Object:  StoredProcedure [dbo].[spCrud_ArchivosProcesados_InsertaArchivos]    Script Date: 28/10/2019 10:59:06 a. m. ******/
+/****** Object:  StoredProcedure [dbo].[spCrud_ArchivosProcesados_InsertaArchivos]    Script Date: 28/11/2019 03:28:50 p. m. ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
 
 CREATE PROCEDURE [dbo].[spCrud_ArchivosProcesados_InsertaArchivos]
-	@NOMBRE			VARCHAR(300),
+	@NOMBRE			VARCHAR(1000),
 	@ACCION			INT
 	AS
 	BEGIN
@@ -936,7 +968,7 @@ CREATE PROCEDURE [dbo].[spCrud_ArchivosProcesados_InsertaArchivos]
 		END CATCH
 	END
 GO
-/****** Object:  StoredProcedure [dbo].[spDirectivo_ObtenerMaterias]    Script Date: 28/10/2019 10:59:06 a. m. ******/
+/****** Object:  StoredProcedure [dbo].[spDirectivo_ObtenerMaterias]    Script Date: 28/11/2019 03:28:50 p. m. ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -970,7 +1002,7 @@ CREATE PROCEDURE [dbo].[spDirectivo_ObtenerMaterias]
 
 	END
 GO
-/****** Object:  StoredProcedure [dbo].[spDirectivo_ObtieneCampus]    Script Date: 28/10/2019 10:59:06 a. m. ******/
+/****** Object:  StoredProcedure [dbo].[spDirectivo_ObtieneCampus]    Script Date: 28/11/2019 03:28:50 p. m. ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1057,7 +1089,7 @@ CREATE PROCEDURE [dbo].[spDirectivo_ObtieneCampus]
 				END
 	END
 GO
-/****** Object:  StoredProcedure [dbo].[spDirectivo_ObtieneDepartamento]    Script Date: 28/10/2019 10:59:06 a. m. ******/
+/****** Object:  StoredProcedure [dbo].[spDirectivo_ObtieneDepartamento]    Script Date: 28/11/2019 03:28:50 p. m. ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1085,7 +1117,7 @@ CREATE PROCEDURE [dbo].[spDirectivo_ObtieneDepartamento]
 		AND uo.CLAVE_IDENTIDAD_RESPONSABLE = @PIDM;
 	END
 GO
-/****** Object:  StoredProcedure [dbo].[spEjemplo]    Script Date: 28/10/2019 10:59:06 a. m. ******/
+/****** Object:  StoredProcedure [dbo].[spEjemplo]    Script Date: 28/11/2019 03:28:50 p. m. ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1101,7 +1133,7 @@ CREATE PROCEDURE [dbo].[spEjemplo]
 		select @salida = 'pturna'
 	END
 GO
-/****** Object:  StoredProcedure [dbo].[spFiltro_ConsultarAlumnos]    Script Date: 28/10/2019 10:59:06 a. m. ******/
+/****** Object:  StoredProcedure [dbo].[spFiltro_ConsultarAlumnos]    Script Date: 28/11/2019 03:28:50 p. m. ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1190,7 +1222,7 @@ BEGIN
 		INNER JOIN Replicas.dbo.GRUPOS g on ga.CRN = g.CRN
 		--INNER JOIN SubperiodosNacional sn on ga.PERIODO = sn.Idperiodo
 		WHERE
-		g.TERM = '201913'
+		g.TERM = @PERIODO
 
 		GROUP BY a.PIDM, a.MATRICULA, a.NOMBRE, a.AP_PATERNO, a.AP_MATERNO, a.CORREO_ELECTRONICO, c.desc_campus
 		ORDER BY c.desc_campus DESC
@@ -1389,7 +1421,7 @@ BEGIN
 	--SELECT <@Param1, sysname, @p1>, <@Param2, sysname, @p2>
 END
 GO
-/****** Object:  StoredProcedure [dbo].[spGrupos_TraerDatos]    Script Date: 28/10/2019 10:59:06 a. m. ******/
+/****** Object:  StoredProcedure [dbo].[spGrupos_TraerDatos]    Script Date: 28/11/2019 03:28:50 p. m. ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1429,7 +1461,7 @@ CREATE PROCEDURE [dbo].[spGrupos_TraerDatos]
 		END
 	END--TERMINA
 GO
-/****** Object:  StoredProcedure [dbo].[spMateriasExcepcion_VerificaMaterias]    Script Date: 28/10/2019 10:59:06 a. m. ******/
+/****** Object:  StoredProcedure [dbo].[spMateriasExcepcion_VerificaMaterias]    Script Date: 28/11/2019 03:28:50 p. m. ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1467,7 +1499,7 @@ CREATE PROCEDURE [dbo].[spMateriasExcepcion_VerificaMaterias]
 			END
 	END
 GO
-/****** Object:  StoredProcedure [dbo].[spMateriasNormativas_RevisarMaterias]    Script Date: 28/10/2019 10:59:06 a. m. ******/
+/****** Object:  StoredProcedure [dbo].[spMateriasNormativas_RevisarMaterias]    Script Date: 28/11/2019 03:28:50 p. m. ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1486,13 +1518,14 @@ CREATE PROCEDURE [dbo].[spMateriasNormativas_RevisarMaterias]
 	BEGIN
 		SET NOCOUNT ON;
 
+		
 		IF EXISTS(SELECT Id 
 				FROM [dbo].[MateriasNormativas]
-				WHERE Curso=@Curso AND Materia=@Materia AND Activo = 1)
+				WHERE Curso=@Curso AND Materia=@Materia AND Activo = 1 and Vigencia>=dbo.dReturnDate(getdate()))
 			BEGIN
 				--SELECT 1
 				IF EXISTS(SELECT CLAVE_EJERCICIO_ACADEMICO FROM Replicas.dbo.DIM_R_ESCO_EJERCICIO_ACADEMICO 
-						  WHERE CLAVE_EJERCICIO_ACADEMICO = @TERM AND IND_ESTATUS_EJER_ACAD IN ('A', 'H'))
+						  WHERE  CLAVE_EJERCICIO_ACADEMICO = @TERM)
 					BEGIN
 						RETURN 1
 					END
@@ -1509,7 +1542,7 @@ CREATE PROCEDURE [dbo].[spMateriasNormativas_RevisarMaterias]
 
 	END
 GO
-/****** Object:  StoredProcedure [dbo].[spNormativa_AplicarNormativa]    Script Date: 28/10/2019 10:59:06 a. m. ******/
+/****** Object:  StoredProcedure [dbo].[spNormativa_AplicarNormativa]    Script Date: 28/11/2019 03:28:50 p. m. ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1521,7 +1554,7 @@ GO
 -- =============================================
 CREATE PROCEDURE [dbo].[spNormativa_AplicarNormativa]
     @TERM				VARCHAR(20)=NULL,
-    @CRN				INT=NULL,
+    @CRN				varchar(50)=NULL,
     @ID_NORMATIVA		INT
    
     AS
@@ -1544,57 +1577,84 @@ CREATE PROCEDURE [dbo].[spNormativa_AplicarNormativa]
                 VigenciaHasta	DATETIME NOT NULL,
                 IntervaloDesde	INT NOT NULL,
                 IntervaloHasta	INT NOT NULL,
-                ClaveCal			VARCHAR(50) NOT NULL);
+                ClaveCal			VARCHAR(5) NOT NULL);
 
             DECLARE @ARCH_FIL TABLE  
                 ( Id			INT IDENTITY(1,1)   NOT NULL ,  
                 ID_ARCH		INT NOT NULL,
-                Periodo		VARCHAR(20) NOT NULL, 
-                CRN			INT NOT NULL,
-                PIDMProfesor	INT NOT NULL,
-                PIDMAlumno	INT NOT NULL,
+                Periodo		VARCHAR(50) NOT NULL, 
+                CRN			varchar(50) NOT NULL,
+                PIDMProfesor	varchar(50) NOT NULL,
+                PIDMAlumno	varchar(50) NOT NULL,
                 GradeNum		VARCHAR (10) NOT NULL,
-                GradeAlfa	VARCHAR (10) NULL,
+                GradeAlfa	VARCHAR (50) NULL,
                 Procesado		BIT NOT NULL);
 
+			--select 1
 
 
             INSERT INTO @Normativas_APLICAR
             SELECT Id, VigenciaDesde,VigenciaHasta,IntervaloDesde,IntervaloHasta,ClaveCal FROM Normativas WHERE NormativaId=@ID_NORMATIVA;
-
+			--select 1.5
             INSERT INTO @ARCH_FIL
-            SELECT Id, Periodo, CRN, PIDMProfesor, PIDMAlumno, GradeNum, GradeAlfa, Procesado FROM ArchivosCanvasFiltrado;
+            SELECT Id, Periodo, CRN, PIDMProfesor, PIDMAlumno, GradeNum, GradeAlfa, Procesado FROM ArchivosCanvasFiltrado WHERE CRN = @CRN;
 
-            SET @CONT_NORM_APL = (SELECT 1 FROM @Normativas_APLICAR)
+			DECLARE @GRADE_A VARCHAR(50);
+			DECLARE @GRADE_N	VARCHAR(50);
+			declare @grade_nn int;
+			--select 2
+
+            SET @CONT_NORM_APL = (SELECT count(id) FROM @Normativas_APLICAR)
             SET @REN_NOR_APL = 1
-            SET @CONT_ARCH_FIL =(SELECT 1 FROM @ARCH_FIL WHERE (Periodo=@TERM AND CRN=@CRN))
+            SET @CONT_ARCH_FIL =(SELECT count(id) FROM @ARCH_FIL WHERE (Periodo=@TERM AND CRN=@CRN))
             --ESTE CICLO RECORRE LAS VECES QUE HAYA QUE AGREGAR NORMATIVA
             WHILE @REN_NOR_APL <= @CONT_NORM_APL
                 BEGIN
+					--select 3
+					--select @REN_NOR_APL ren_nor
+					--select @CONT_NORM_APL count_norm
                     --SELECT  * FROM @Normativas_APLICAR
                     SET @NOR_INTERVALO_DESDE = (SELECT  IntervaloDesde FROM @Normativas_APLICAR WHERE Id=@REN_NOR_APL)
                     SET @NOR_INTERVALO_HASTA = (SELECT  IntervaloHasta FROM @Normativas_APLICAR WHERE Id=@REN_NOR_APL)
                     SET @VAR_CLAVE = (SELECT  ClaveCal FROM @Normativas_APLICAR WHERE Id=@REN_NOR_APL)
                     SET @REN_ARCH_FIL = 1
+					--select 3
 
                     WHILE @REN_ARCH_FIL <= @CONT_ARCH_FIL
                         BEGIN
-                            DECLARE @GRADE_A VARCHAR(20)=(SELECT GradeAlfa FROM @ARCH_FIL WHERE Id= @REN_ARCH_FIL)
-                            DECLARE @GRADE_N	INT=(SELECT GradeNum FROM @ARCH_FIL WHERE Id= @REN_ARCH_FIL)
+						--select 3
+						--select @REN_ARCH_FIL fil_ren
+                            set @GRADE_A =(SELECT GradeAlfa FROM @ARCH_FIL WHERE Id= @REN_ARCH_FIL)
+							--select 4
+                            set @GRADE_N	=(SELECT GradeNum FROM @ARCH_FIL WHERE Id= @REN_ARCH_FIL)
+							--select @GRADE_N grade_N
                             IF @GRADE_A = NULL OR @GRADE_A = '' OR @GRADE_A = 'FI'
-                                BEGIN
-                                    IF @GRADE_N BETWEEN @NOR_INTERVALO_DESDE AND @NOR_INTERVALO_HASTA
-                                        BEGIN
-                                            IF @GRADE_A = 'FI'
-                                            BEGIN
-                                                UPDATE @ARCH_FIL SET GradeNum=@VAR_CLAVE WHERE Id=@REN_ARCH_FIL;
-                                            END
-                                            ELSE
-                                            BEGIN
-                                                UPDATE @ARCH_FIL SET GradeAlfa=@VAR_CLAVE WHERE Id=@REN_ARCH_FIL;
-                                            END;
-                                        END;
+                                BEGIN									
+									if(@GRADE_N not in ('SA','FI','SC',''))
+									begin
+										set @grade_nn = (select CAST(@GRADE_N AS INT));										
+									
+										IF @GRADE_NN BETWEEN @NOR_INTERVALO_DESDE AND @NOR_INTERVALO_HASTA
+											BEGIN
+												IF @GRADE_A = 'FI'
+												BEGIN
+													UPDATE @ARCH_FIL SET GradeNum=@VAR_CLAVE WHERE Id=@REN_ARCH_FIL;
+												END
+												ELSE
+												BEGIN
+													UPDATE @ARCH_FIL SET GradeAlfa=@VAR_CLAVE WHERE Id=@REN_ARCH_FIL;
+												END;
+											END;
+									end
+									else if(@GRADE_N = '')
+									begin
+										--select 'SC'
+										UPDATE @ARCH_FIL SET GradeAlfa='SC' WHERE Id=@REN_ARCH_FIL;
+									end
+									
                                 END;
+								
+								
                             SET @REN_ARCH_FIL=@REN_ARCH_FIL+1
                         END
                     --SELECT * FROM dbo.ArchivosCanvasFiltrado
@@ -1616,18 +1676,13 @@ CREATE PROCEDURE [dbo].[spNormativa_AplicarNormativa]
             
         END TRY
         BEGIN CATCH
-            SELECT
-                ERROR_NUMBER() AS ErrorNumber  
-                ,ERROR_SEVERITY() AS ErrorSeverity  
-                ,ERROR_STATE() AS ErrorState  
-                ,ERROR_PROCEDURE() AS ErrorProcedure  
-                ,ERROR_LINE() AS ErrorLine  
-                ,ERROR_MESSAGE() AS ErrorMessage; 
-                EXEC dbo.spBitacoras_RegistraBitacora 9, @TERM, @CRN, 0, NULL,NULL,NULL,0,'FLUJO','PROCESO AUTOMATICO', NULL,NULL,NULL,'Error al aplicar normativa'
+		Declare @errortry varchar(max) ='Error al aplicar normativa Detalle sql: '+(SELECT ERROR_MESSAGE() AS ErrorMessage);
+            
+                EXEC dbo.spBitacoras_RegistraBitacora 9, @TERM, @CRN, 0, NULL,NULL,NULL,0,'error','Aplicar Normativa', NULL,NULL,NULL,@errortry
         END CATCH	
     END
 GO
-/****** Object:  StoredProcedure [dbo].[spNormativa_ObtenerInformacion]    Script Date: 28/10/2019 10:59:06 a. m. ******/
+/****** Object:  StoredProcedure [dbo].[spNormativa_ObtenerInformacion]    Script Date: 28/11/2019 03:28:50 p. m. ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1655,7 +1710,7 @@ CREATE PROCEDURE [dbo].[spNormativa_ObtenerInformacion]
 			END
 	END
 GO
-/****** Object:  StoredProcedure [dbo].[spPeriodo_ObtenerAtributo]    Script Date: 28/10/2019 10:59:06 a. m. ******/
+/****** Object:  StoredProcedure [dbo].[spPeriodo_ObtenerAtributo]    Script Date: 28/11/2019 03:28:50 p. m. ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1694,7 +1749,7 @@ CREATE PROCEDURE [dbo].[spPeriodo_ObtenerAtributo]
 		SELECT @R AS 'TIPO PERIODO'
 	END
 GO
-/****** Object:  StoredProcedure [dbo].[spPeriodo_TraerPeriodoActivo]    Script Date: 28/10/2019 10:59:06 a. m. ******/
+/****** Object:  StoredProcedure [dbo].[spPeriodo_TraerPeriodoActivo]    Script Date: 28/11/2019 03:28:50 p. m. ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1773,7 +1828,7 @@ CREATE PROCEDURE [dbo].[spPeriodo_TraerPeriodoActivo]
 			END  
 	END
 GO
-/****** Object:  StoredProcedure [dbo].[spProcesoAutomatico_Ejecutar]    Script Date: 28/10/2019 10:59:06 a. m. ******/
+/****** Object:  StoredProcedure [dbo].[spProcesoAutomatico_Ejecutar]    Script Date: 28/11/2019 03:28:50 p. m. ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -1785,7 +1840,7 @@ GO
 -- =============================================
 CREATE PROCEDURE [dbo].[spProcesoAutomatico_Ejecutar]
 @TERM					VARCHAR(20),
-@CRN					INT,
+@CRN					varchar(20),
 @FECHA					DATETIME,
 @ACCION					INT
 AS
@@ -1829,11 +1884,13 @@ BEGIN -- Begin first
 						BEGIN--1.1.2
 							EXEC @RES_EX_NORMATIVA=dbo.spMateriasNormativas_RevisarMaterias @RES_Subject, @RES_Course, @TERM 
 							select '@RES_EX_NORMATIVA'
+							--select @RES_EX_NORMATIVA normativa
 							IF @RES_EX_NORMATIVA=1--1.1.3
 								BEGIN--1.1.3
+									--select 1.1
 									EXEC dbo.spNormativa_ObtenerInformacion @RES_Subject, @RES_Course, 1, @RES_NormativaId OUTPUT
-									EXEC dbo.spNormativa_AplicarNormativa @TERM, @CRN, @RES_NormativaId
-									EXEC dbo.spBitacoras_RegistraBitacora 9, @TERM, @CRN, NULL, NULL,NULL,NULL,NULL,'FLUJO','PROCESO AUTOMATICO', NULL,NULL,NULL,'Aplica normativa'
+									EXEC dbo.spNormativa_AplicarNormativa @TERM, @CRN, @RES_NormativaId									
+									EXEC dbo.spBitacoras_RegistraBitacora 9, @TERM, @CRN, 0, NULL,NULL,NULL,0,'FLUJO','PROCESO AUTOMATICO', NULL,NULL,NULL,'Aplica normativa'
 								END --1.1.3
 											
 							--CALIFICACIONES EN EXCEPCION
@@ -1859,12 +1916,12 @@ BEGIN -- Begin first
 											INNER JOIN [Replicas].[dbo].[PROFESORES] P ON ACF.PIDMProfesor=P.PIDM
 										WHERE (ACF.Periodo=@TERM AND ACF.CRN=@CRN)
 
-									EXEC dbo.spBitacoras_RegistraBitacora 9, @TERM, @CRN, NULL, NULL,NULL,NULL,NULL,'FLUJO','PROCESO AUTOMATICO', NULL,NULL,NULL,'Agregar alumnos a tabla para enviar a banner'
+									EXEC dbo.spBitacoras_RegistraBitacora 9, @TERM, @CRN, 0, NULL,NULL,NULL,0,'FLUJO','PROCESO AUTOMATICO', NULL,NULL,NULL,'Agregar alumnos a tabla para enviar a banner'
 														
 								END--1.1.4
 							ELSE--1.1.4
 								BEGIN--1.1.4
-									EXEC dbo.spBitacoras_RegistraBitacora 9, @TERM, @CRN, NULL, NULL,NULL,NULL,0,'ERROR','PROCESO AUTOMATICO', NULL,NULL,NULL,'No existen alumnos en la tabla grupo_alumnos de replicas'
+									EXEC dbo.spBitacoras_RegistraBitacora 9, @TERM, @CRN, 0, NULL,NULL,NULL,0,'ERROR','PROCESO AUTOMATICO', NULL,NULL,NULL,'No existen alumnos en la tabla grupo_alumnos de replicas'
 								END--1.1.4
 						END--1.1.2
 					ELSE --1.1.2
@@ -1877,7 +1934,7 @@ BEGIN -- Begin first
 										BEGIN--1.1.2.2
 											EXEC dbo.spNormativa_ObtenerInformacion @RES_Subject, @RES_Course, 1, @RES_NormativaId OUTPUT
 											EXEC dbo.spNormativa_AplicarNormativa @TERM, @CRN, @RES_NormativaId
-											EXEC dbo.spBitacoras_RegistraBitacora 9, @TERM, @CRN, NULL, NULL,NULL,NULL,NULL,'FLUJO','PROCESO AUTOMATICO', NULL,NULL,NULL,'Aplica normativa'
+											EXEC dbo.spBitacoras_RegistraBitacora 9, @TERM, @CRN, 0, NULL,NULL,NULL,0,'FLUJO','PROCESO AUTOMATICO', NULL,NULL,NULL,'Aplica normativa'
 										END --1.1.2.2
 											
 									--CALIFICACIONES EN EXCEPCION
@@ -1903,14 +1960,14 @@ BEGIN -- Begin first
 													INNER JOIN [Replicas].[dbo].[PROFESORES] P ON ACF.PIDMProfesor=P.PIDM
 												WHERE (ACF.Periodo=@TERM AND ACF.CRN=@CRN)
 
-											EXEC dbo.spBitacoras_RegistraBitacora 9, @TERM, @CRN, NULL, NULL,NULL,NULL,NULL,'FLUJO','PROCESO AUTOMATICO', NULL,NULL,NULL,'Agregar alumnos a tabla para enviar a banner'
+											EXEC dbo.spBitacoras_RegistraBitacora 9, @TERM, @CRN, 0, NULL,NULL,NULL,0,'FLUJO','PROCESO AUTOMATICO', NULL,NULL,NULL,'Agregar alumnos a tabla para enviar a banner'
 														
 										END--1.1.2.2
 								END--1.1.2.1
 							ELSE--1.1.2.1
 								BEGIN--1.1.2.1
 									--SE ENCUENTRA EN LA TABLA DE EXCEPCION DE MateriaS O ES SEMANA 6 Y 12
-									EXEC dbo.spBitacoras_RegistraBitacora 9, @TERM, @CRN, NULL, NULL,NULL,NULL,0,'ERROR','PROCESO AUTOMATICO', NULL,NULL,NULL,'Se encuentra en excepción de materias y es semana 6 ó 12'
+									EXEC dbo.spBitacoras_RegistraBitacora 9, @TERM, @CRN, 0, NULL,NULL,NULL,0,'ERROR','PROCESO AUTOMATICO', NULL,NULL,NULL,'Se encuentra en excepción de materias y es semana 6 ó 12'
 									SET @MENSAJE_SALIDA = 'Se encuentra en excepción de materias y es semana 6 ó 12'
 									SELECT @MENSAJE_SALIDA AS 'MENSAJE'
 									DELETE FROM dbo.ArchivosCanvasFiltrado WHERE (Periodo=@TERM AND CRN = @CRN)
@@ -1933,7 +1990,7 @@ BEGIN -- Begin first
 								BEGIN--1.1.3
 									EXEC dbo.spNormativa_ObtenerInformacion @RES_Subject, @RES_Course, 1, @RES_NormativaId OUTPUT
 									EXEC dbo.spNormativa_AplicarNormativa @TERM, @CRN, @RES_NormativaId
-									EXEC dbo.spBitacoras_RegistraBitacora 9, @TERM, @CRN, NULL, NULL,NULL,NULL,NULL,'FLUJO','PROCESO AUTOMATICO', NULL,NULL,NULL,'Aplica normativa'
+									EXEC dbo.spBitacoras_RegistraBitacora 9, @TERM, @CRN, 0, NULL,NULL,NULL,0,'FLUJO','PROCESO AUTOMATICO', NULL,NULL,NULL,'Aplica normativa'
 								END --1.1.3
 											
 							--CALIFICACIONES EN EXCEPCION
@@ -1959,18 +2016,18 @@ BEGIN -- Begin first
 											INNER JOIN [Replicas].[dbo].[PROFESORES] P ON ACF.PIDMProfesor=P.PIDM
 										WHERE (ACF.Periodo=@TERM AND ACF.CRN=@CRN)
 
-									EXEC dbo.spBitacoras_RegistraBitacora 9, @TERM, @CRN, NULL, NULL,NULL,NULL,NULL,'FLUJO','PROCESO AUTOMATICO', NULL,NULL,NULL,'Agregar alumnos a tabla para enviar a banner'
+									EXEC dbo.spBitacoras_RegistraBitacora 9, @TERM, @CRN, 0, NULL,NULL,NULL,0,'FLUJO','PROCESO AUTOMATICO', NULL,NULL,NULL,'Agregar alumnos a tabla para enviar a banner'
 														
 								END--1.1.4
 						ELSE--1.1.4
 							BEGIN--1.1.4
-								EXEC dbo.spBitacoras_RegistraBitacora 9, @TERM, @CRN, NULL, NULL,NULL,NULL,0,'ERROR','PROCESO AUTOMATICO', NULL,NULL,NULL,'No existen alumnos en la tabla grupo_alumnos de replicas'
+								EXEC dbo.spBitacoras_RegistraBitacora 9, @TERM, @CRN, 0, NULL,NULL,NULL,0,'ERROR','PROCESO AUTOMATICO', NULL,NULL,NULL,'No existen alumnos en la tabla grupo_alumnos de replicas'
 							END--1.1.4
 						END--1.1.1
 					ELSE--1.1.1
 						BEGIN--1.1.1
 							--SE ENVIA MENSAJE DE ERROR DE SUBPeriodo NO Activo
-							EXEC dbo.spBitacoras_RegistraBitacora 9, @TERM, @CRN, NULL, NULL,NULL,NULL,0,'ERROR','PROCESO AUTOMATICO', NULL,NULL,NULL,'No se encuentra dentro de los rangos de fechas del subperiodo campus'
+							EXEC dbo.spBitacoras_RegistraBitacora 9, @TERM, @CRN, 0, NULL,NULL,NULL,0,'ERROR','PROCESO AUTOMATICO', NULL,NULL,NULL,'No se encuentra dentro de los rangos de fechas del subperiodo campus'
 							SET @MENSAJE_SALIDA = 'No se encuentra dentro de los rangos de fechas del subperiodo campus'
 							SELECT @MENSAJE_SALIDA AS 'MENSAJE'
 							DELETE FROM dbo.ArchivosCanvasFiltrado WHERE (Periodo=@TERM AND CRN = @CRN)
@@ -1983,7 +2040,7 @@ BEGIN -- Begin first
 
 END --End first
 GO
-/****** Object:  StoredProcedure [dbo].[spProcesoSC_GeneraSC]    Script Date: 28/10/2019 10:59:06 a. m. ******/
+/****** Object:  StoredProcedure [dbo].[spProcesoSC_GeneraSC]    Script Date: 28/11/2019 03:28:50 p. m. ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -2006,7 +2063,7 @@ CREATE PROCEDURE [dbo].[spProcesoSC_GeneraSC]
 		DECLARE @CRN				INT
 		DECLARE	@RES_LISTA_EXC		INT
 		DECLARE @RES_SEM_6Y12		INT
-		DECLARE @RES_SUBJECT		VARCHAR(10)
+		DECLARE @RES_SUBJECT		VARCHAR(100)
 		DECLARE @RES_COURSE			VARCHAR(10)
 		DECLARE @RES_SUBPERIODO		VARCHAR(20)
 		DECLARE @IS_VALID_PMT6		INT
@@ -2052,6 +2109,7 @@ CREATE PROCEDURE [dbo].[spProcesoSC_GeneraSC]
 			MATRICULA				VARCHAR(20) NULL);
 
 		--OBTENEMOS EL TIPO DE PERIODO PARA DELIMITAR EL Grupo
+	
 		EXEC DBO.spPeriodo_ObtenerAtributo @TERM, @ID_SUBPERIODO_CAMPUS, @RES_SUBPERIODO OUTPUT;
 
 		DECLARE @TIPO_PERIODO		VARCHAR(20)
@@ -2093,11 +2151,11 @@ CREATE PROCEDURE [dbo].[spProcesoSC_GeneraSC]
 			BEGIN
 				INSERT INTO @GRUPOS_TEMP
 					SELECT  gt.TERM,gt.ID_SP_CAMPUS, gt.CRN, gt.[SUBJECT],gt.COURSE, gt.NOMINA FROM @GRUPOS_TEMP1 gt 
-					INNER JOIN GRUPO_atributos g on gt.crn=g.crn and g.term=gt.term 
+					INNER JOIN Replicas.dbo.GRUPO_atributos g on gt.crn=g.crn and g.term=gt.term 
 					where g.CLAVE_ATRIBUTO=@RES_SUBPERIODO 
 					EXCEPT
 					SELECT  gt.TERM,gt.ID_SP_CAMPUS, gt.CRN, gt.[SUBJECT],gt.COURSE, gt.NOMINA FROM @GRUPOS_TEMP1 gt 
-					INNER JOIN GRUPO_atributos g on gt.crn=g.crn and g.term=gt.term 
+					INNER JOIN Replicas.dbo.GRUPO_atributos g on gt.crn=g.crn and g.term=gt.term 
 					WHERE g.CLAVE_ATRIBUTO='STEC' 
 
 			END 
@@ -2135,8 +2193,8 @@ CREATE PROCEDURE [dbo].[spProcesoSC_GeneraSC]
 		
 
 			--ME TRAIGO LOS DATOS DE MATERIAS DENTRO DE LA TABLA GRUPOS
-			EXEC DBO.SP_TRAER_DATOS_GRUPOS @TERM, @CRN, 2, @RES_SUBJECT OUTPUT
-			EXEC DBO.SP_TRAER_DATOS_GRUPOS @TERM, @CRN, 3, @RES_COURSE OUTPUT
+			EXEC DBO.spGrupos_TraerDatos @TERM, @CRN, 2, @RES_SUBJECT OUTPUT
+			EXEC DBO.spGrupos_TraerDatos @TERM, @CRN, 3, @RES_COURSE OUTPUT
 
 			--SI SE ENCUENTRA ACTIVO  REVISO SI ESTA EN LISTA DE EXCEPCION	
 			EXEC @RES_LISTA_EXC= spMateriasExcepcion_VerificaMaterias @RES_SUBJECT, @RES_COURSE, @TERM
@@ -2164,7 +2222,7 @@ CREATE PROCEDURE [dbo].[spProcesoSC_GeneraSC]
 
 					 --INSERTAR CALIFICACIONES EN TABLA DE ENVIAR A BANNER
 					 INSERT INTO CalificacionesEnviadasBanner
-						SELECT TERM, CRN, MATRICULA, PIDM, 'SC', DBO.dReturnDate(GETDATE()), NOMINA, 'PROCESO SC', 0, 0,0,''
+						SELECT TERM, CRN, MATRICULA, PIDM, 'SC', DBO.dReturnDate(GETDATE()), NOMINA, 'SC', 0, 0,0,''
 						FROM @PREPARA_ENVIAR_BANNER
 				END--1.1
 			ELSE--1.1
@@ -2191,7 +2249,7 @@ CREATE PROCEDURE [dbo].[spProcesoSC_GeneraSC]
 
 							 --INSERTAR CALIFICACIONES EN TABLA DE ENVIAR A BANNER
 							 INSERT INTO CalificacionesEnviadasBanner
-								SELECT TERM, CRN, MATRICULA, PIDM, 'SC', DBO.dReturnDate(GETDATE()), NOMINA, 'PROCESO SC', 0, 0,0,''
+								SELECT TERM, CRN, MATRICULA, PIDM, 'SC', DBO.dReturnDate(GETDATE()), NOMINA, 'PROC SC', 0, 0,0,''
 								FROM @PREPARA_ENVIAR_BANNER
 								
 						END
@@ -2207,7 +2265,7 @@ CREATE PROCEDURE [dbo].[spProcesoSC_GeneraSC]
 	
 	END--TERMINA
 GO
-/****** Object:  StoredProcedure [dbo].[spReporteAvanceCapturado_ObtenerReporte]    Script Date: 28/10/2019 10:59:06 a. m. ******/
+/****** Object:  StoredProcedure [dbo].[spReporteAvanceCapturado_ObtenerReporte]    Script Date: 28/11/2019 03:28:50 p. m. ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -2236,57 +2294,113 @@ CREATE PROCEDURE [dbo].[spReporteAvanceCapturado_ObtenerReporte]
 
         IF @capturado = 0
             BEGIN
-                SELECT DISTINCT camp.desc_campus CAMPUS, gpo.CRN, gpo.TERM, CAST(@subperiodo as nvarchar(1)) SUBPERIODO, gpo.Materia, gpo.Subject, gpo.Course, gpo.INSCRITOS, prof.NOMINA + ' ' + prof.Nombre + ' ' + prof.AP_PATERNO + ' ' + prof.AP_MATERNO NOMINA, null FechaAgregado, null UsuarioCalifico
-                FROM            Replicas.dbo.GRUPOS AS gpo WITH (NOLOCK)
-                LEFT JOIN Replicas.dbo.PROFESORES prof WITH (NOLOCK) ON gpo.NOMINA = prof.NOMINA
-                LEFT JOIN Replicas.dbo.CAMPUS camp WITH (NOLOCK) ON gpo.CAMPUS = camp.clave_campus
-                WHERE ((@campus = '%' OR gpo.CAMPUS = @campus)
-                AND gpo.TERM = @periodo
-                --AND gpo.SUBPERIODO = @subperiodo
-                AND NOT EXISTS (SELECT 'x' FROM  dbo.CalificacionesEnviadasBanner AS env WITH (NOLOCK) WHERE gpo.TERM = env.TERM AND gpo.CRN = env.CRN)
-                AND EXISTS (SELECT 'x' FROM Replicas.dbo.GRUPO_ATRIBUTOS attr WITH (NOLOCK) WHERE attr.TERM = gpo.TERM AND attr.CRN = gpo.CRN 
-                                AND (
-                                    (@subperiodo <= 6 AND attr.CLAVE_ATRIBUTO = 'PMT'+ CAST(@subperiodo as nvarchar)) 
-                                    OR (@subperiodo = 7 AND attr.CLAVE_ATRIBUTO = 'PMT1')
-                                    OR (@subperiodo = 8 AND attr.CLAVE_ATRIBUTO = 'PMT2')
-                                    OR (@subperiodo = 9 AND attr.CLAVE_ATRIBUTO = 'PMT3')
-                                    ) )
-                AND EXISTS (SELECT 'x' FROM Replicas.dbo.GRUPO_ATRIBUTOS attr WITH (NOLOCK) WHERE attr.TERM = gpo.TERM AND attr.CRN = gpo.CRN 
-                                AND (
-                                    (@subperiodo <= 6 AND attr.CLAVE_ATRIBUTO = 'MT21') 
-                                    OR (@subperiodo > 6 AND attr.CLAVE_ATRIBUTO = 'STEC')) )
-                AND (@profesor IS NULL OR gpo.NOMINA = @profesor)
-                AND (@materia IS NULL OR gpo.Materia = @materia));
+				if @subperiodo<=6
+					begin
+						with Tempcrn as(
+							SELECT CRN,case 
+							when CLAVE_ATRIBUTO='PMT1' then 1
+							when CLAVE_ATRIBUTO='PMT2' then 2
+							when CLAVE_ATRIBUTO='PMT3' then 3
+							when CLAVE_ATRIBUTO='PMT4' then 4
+							when CLAVE_ATRIBUTO='PMT5' then 5
+							when CLAVE_ATRIBUTO='PMT6' then 6
+							end as subperiodo
+							FROM Replicas.DBO.GRUPO_ATRIBUTOS WITH (NOLOCK) WHERE CLAVE_ATRIBUTO IN ('PMT1','PMT2','PMT3','PMT4','PMT5','PMT6')
+							and CRN not in(SELECT CRN FROM REPLICAS.DBO.GRUPO_ATRIBUTOS WHERE CLAVE_ATRIBUTO='STEC') 
+						)
+						SELECT DISTINCT camp.desc_campus CAMPUS, gpo.CRN, gpo.TERM, CAST(@subperiodo as nvarchar(1)) SUBPERIODO, gpo.Materia, gpo.Subject, gpo.Course, gpo.INSCRITOS, prof.NOMINA, @fechaCaptura FechaAgregado, '' UsuarioCalifico
+						FROM            Replicas.dbo.GRUPOS AS gpo WITH (NOLOCK)
+						LEFT JOIN Replicas.dbo.PROFESORES prof WITH (NOLOCK) ON gpo.NOMINA = prof.NOMINA
+						LEFT JOIN Replicas.dbo.CAMPUS camp WITH (NOLOCK) ON gpo.CAMPUS = camp.clave_campus
+						WHERE ((@campus = '%' OR gpo.CAMPUS = @campus)
+						AND gpo.TERM = @periodo
+						AND (@profesor IS NULL OR gpo.NOMINA = @profesor)
+						AND (@materia IS NULL OR gpo.Materia = @materia))
+						AND NOT EXISTS (SELECT 'x' FROM  dbo.CalificacionesEnviadasBanner AS env WITH (NOLOCK) WHERE gpo.TERM = env.TERM AND gpo.CRN = env.CRN)
+						AND gpo.CRN in (select CRN FROM Tempcrn where subperiodo=@subperiodo)
+					END--termina evaluacion del periodos normales
+				ELSE
+					BEGIN--SI SEMANA TEC
+						with Tempcrn as(
+							SELECT CRN,case 
+							when CLAVE_ATRIBUTO='PMT1' then 7
+							when CLAVE_ATRIBUTO='PMT2' then 8
+							when CLAVE_ATRIBUTO='PMT3' then 9
+							end as subperiodo
+							FROM Replicas.DBO.GRUPO_ATRIBUTOS WITH (NOLOCK) WHERE 
+							CLAVE_ATRIBUTO IN ('PMT1','PMT2','PMT3') and
+							CRN in(SELECT CRN FROM REPLICAS.DBO.GRUPO_ATRIBUTOS WHERE CLAVE_ATRIBUTO='STEC')
+							)
+						SELECT DISTINCT camp.desc_campus CAMPUS, gpo.CRN, gpo.TERM, CAST(@subperiodo as nvarchar(1)) SUBPERIODO, gpo.Materia, gpo.Subject, gpo.Course, gpo.INSCRITOS, prof.NOMINA, @fechaCaptura FechaAgregado, '' UsuarioCalifico
+						FROM            Replicas.dbo.GRUPOS AS gpo WITH (NOLOCK)
+						LEFT JOIN Replicas.dbo.PROFESORES prof WITH (NOLOCK) ON gpo.NOMINA = prof.NOMINA
+						LEFT JOIN Replicas.dbo.CAMPUS camp WITH (NOLOCK) ON gpo.CAMPUS = camp.clave_campus
+						WHERE ((@campus = '%' OR gpo.CAMPUS = @campus)
+						AND gpo.TERM = @periodo
+						AND (@profesor IS NULL OR gpo.NOMINA = @profesor)
+						AND (@materia IS NULL OR gpo.Materia = @materia))
+						AND NOT EXISTS (SELECT 'x' FROM  dbo.CalificacionesEnviadasBanner AS env WITH (NOLOCK) WHERE gpo.TERM = env.TERM AND gpo.CRN = env.CRN)
+						AND gpo.CRN in (select CRN FROM Tempcrn where subperiodo=@subperiodo)
+					END
             END
         ELSE
-            BEGIN
-                SELECT DISTINCT camp.desc_campus CAMPUS, gpo.CRN, gpo.TERM, CAST(@subperiodo as nvarchar(1)) SUBPERIODO, gpo.Materia, gpo.Subject, gpo.Course, gpo.INSCRITOS, prof.NOMINA + ' ' + prof.Nombre + ' ' + prof.AP_PATERNO + ' ' + prof.AP_MATERNO NOMINA, env.FechaAgregado, env.UsuarioCalifico
-                FROM            Replicas.dbo.GRUPOS AS gpo WITH (NOLOCK) INNER JOIN
-                                        dbo.CalificacionesEnviadasBanner AS env WITH (NOLOCK) ON gpo.TERM = env.TERM AND gpo.CRN = env.CRN
-                LEFT JOIN Replicas.dbo.PROFESORES prof WITH (NOLOCK) ON gpo.NOMINA = prof.NOMINA
-                LEFT JOIN Replicas.dbo.CAMPUS camp WITH (NOLOCK) ON gpo.CAMPUS = camp.clave_campus
-                WHERE (@campus = '%' OR gpo.CAMPUS = @campus)
-                AND gpo.TERM = @periodo
-                --AND gpo.SUBPERIODO = @subperiodo
-                AND EXISTS (SELECT 'x' FROM Replicas.dbo.GRUPO_ATRIBUTOS attr WITH (NOLOCK) WHERE (attr.TERM = gpo.TERM AND attr.CRN = gpo.CRN 
-                                AND (
-                                    (@subperiodo <= 6 AND attr.CLAVE_ATRIBUTO = 'PMT'+ CAST(@subperiodo as nvarchar)) 
-                                    OR (@subperiodo = 7 AND attr.CLAVE_ATRIBUTO = 'PMT1')
-                                    OR (@subperiodo = 8 AND attr.CLAVE_ATRIBUTO = 'PMT2')
-                                    OR (@subperiodo = 9 AND attr.CLAVE_ATRIBUTO = 'PMT3')
-                                    ) ))
-                AND EXISTS (SELECT 'x' FROM Replicas.dbo.GRUPO_ATRIBUTOS attr WITH (NOLOCK) WHERE (attr.TERM = gpo.TERM AND attr.CRN = gpo.CRN 
-                                AND (
-                                    (@subperiodo <= 6 AND attr.CLAVE_ATRIBUTO = 'MT21') 
-                                    OR (@subperiodo > 6 AND attr.CLAVE_ATRIBUTO = 'STEC')) ))
-                AND (@profesor IS NULL OR gpo.NOMINA = @profesor)
-                AND (@nomina IS NULL OR env.UsuarioCalifico = @nomina)
-                AND (@materia IS NULL OR gpo.Materia = @materia)
-                AND (@fechaCaptura IS NULL OR CAST(env.FechaAgregado as date) = @fechaCaptura);		
+            BEGIN--SI ES PERIODO NORMAL Y FUE ENVIADO
+				if @subperiodo<=6
+					BEGIN--PERIODOS NORMALES
+						with Tempcrn as(
+							SELECT CRN,case 
+							when CLAVE_ATRIBUTO='PMT1' then 1
+							when CLAVE_ATRIBUTO='PMT2' then 2
+							when CLAVE_ATRIBUTO='PMT3' then 3
+							when CLAVE_ATRIBUTO='PMT4' then 4
+							when CLAVE_ATRIBUTO='PMT5' then 5
+							when CLAVE_ATRIBUTO='PMT6' then 6
+							end as subperiodo
+							FROM Replicas.DBO.GRUPO_ATRIBUTOS WITH (NOLOCK) WHERE CLAVE_ATRIBUTO IN ('PMT1','PMT2','PMT3','PMT4','PMT5','PMT6')
+							and CRN not in(SELECT CRN FROM REPLICAS.DBO.GRUPO_ATRIBUTOS WHERE CLAVE_ATRIBUTO='STEC') 
+						)
+						SELECT DISTINCT camp.desc_campus CAMPUS, gpo.CRN, gpo.TERM, CAST(@subperiodo as nvarchar(1)) SUBPERIODO, gpo.Materia, gpo.Subject, gpo.Course, gpo.INSCRITOS, prof.NOMINA, env.FechaAgregado, env.UsuarioCalifico
+						FROM Replicas.dbo.GRUPOS AS gpo WITH (NOLOCK) INNER JOIN
+						dbo.CalificacionesEnviadasBanner AS env WITH (NOLOCK) ON gpo.TERM = env.TERM AND gpo.CRN = env.CRN
+						LEFT JOIN Replicas.dbo.PROFESORES prof WITH (NOLOCK) ON gpo.NOMINA = prof.NOMINA
+						LEFT JOIN Replicas.dbo.CAMPUS camp WITH (NOLOCK) ON gpo.CAMPUS = camp.clave_campus
+						WHERE (@campus = '%' OR gpo.CAMPUS = @campus)
+						AND gpo.TERM = @periodo
+						AND gpo.CRN in (select CRN FROM Tempcrn where subperiodo=@subperiodo)
+						AND (@profesor IS NULL OR gpo.NOMINA = @profesor)
+						AND (@nomina IS NULL OR env.UsuarioCalifico = @nomina)
+						AND (@materia IS NULL OR gpo.Materia = @materia)
+						AND (@fechaCaptura IS NULL OR CAST(env.FechaAgregado as date) = @fechaCaptura);
+					END
+                ELSE
+					BEGIN--CUANDO ES ENVIADO EN STEC
+						with Tempcrn as(
+							SELECT CRN,case 
+							when CLAVE_ATRIBUTO='PMT1' then 7
+							when CLAVE_ATRIBUTO='PMT2' then 8
+							when CLAVE_ATRIBUTO='PMT3' then 9
+							end as subperiodo
+							FROM Replicas.DBO.GRUPO_ATRIBUTOS WITH (NOLOCK) WHERE 
+							CLAVE_ATRIBUTO IN ('PMT1','PMT2','PMT3') and
+							CRN in(SELECT CRN FROM REPLICAS.DBO.GRUPO_ATRIBUTOS WHERE CLAVE_ATRIBUTO='STEC')
+							)
+						SELECT DISTINCT camp.desc_campus CAMPUS, gpo.CRN, gpo.TERM, CAST(@subperiodo as nvarchar(1)) SUBPERIODO, gpo.Materia, gpo.Subject, gpo.Course, gpo.INSCRITOS, prof.NOMINA, env.FechaAgregado, env.UsuarioCalifico
+						FROM Replicas.dbo.GRUPOS AS gpo WITH (NOLOCK) INNER JOIN
+						dbo.CalificacionesEnviadasBanner AS env WITH (NOLOCK) ON gpo.TERM = env.TERM AND gpo.CRN = env.CRN
+						LEFT JOIN Replicas.dbo.PROFESORES prof WITH (NOLOCK) ON gpo.NOMINA = prof.NOMINA
+						LEFT JOIN Replicas.dbo.CAMPUS camp WITH (NOLOCK) ON gpo.CAMPUS = camp.clave_campus
+						WHERE (@campus = '%' OR gpo.CAMPUS = @campus)
+						AND gpo.TERM = @periodo
+						AND gpo.CRN in (select CRN FROM Tempcrn where subperiodo=@subperiodo)
+						AND (@profesor IS NULL OR gpo.NOMINA = @profesor)
+						AND (@nomina IS NULL OR env.UsuarioCalifico = @nomina)
+						AND (@materia IS NULL OR gpo.Materia = @materia)
+						AND (@fechaCaptura IS NULL OR CAST(env.FechaAgregado as date) = @fechaCaptura);
+					END
             END;
     END
 GO
-/****** Object:  StoredProcedure [dbo].[spSemana6Y12_RevisarSemana]    Script Date: 28/10/2019 10:59:06 a. m. ******/
+/****** Object:  StoredProcedure [dbo].[spSemana6Y12_RevisarSemana]    Script Date: 28/11/2019 03:28:50 p. m. ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
