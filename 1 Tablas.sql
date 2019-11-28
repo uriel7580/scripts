@@ -1,4 +1,5 @@
 --CREAR FUNCIONES
+DROP FUNCTION IF EXISTS [dbo].[dReturnDate];
 /****** Object:  UserDefinedFunction [dbo].[dReturnDate]    Script Date: 28/10/2019 10:58:59 a. m. ******/
 SET ANSI_NULLS ON
 GO
@@ -13,6 +14,7 @@ create FUNCTION [dbo].[dReturnDate]( @dFecha as datetime)
 		RETURN CONVERT(datetime, @D);
 	end
 GO
+DROP FUNCTION IF EXISTS [dbo].[intReturnPMT6yMateriaExcepcionValida];
 /****** Object:  UserDefinedFunction [dbo].[intReturnPMT6yMateriaExcepcionValida]    Script Date: 28/10/2019 10:58:59 a. m. ******/
 SET ANSI_NULLS ON
 GO
@@ -62,6 +64,7 @@ CREATE FUNCTION [dbo].[intReturnPMT6yMateriaExcepcionValida]
 			RETURN @RES
 	END
 GO
+DROP FUNCTION IF EXISTS [dbo].[vCReturnSubPeriodo];
 /****** Object:  UserDefinedFunction [dbo].[vCReturnSubPeriodo]    Script Date: 28/10/2019 10:58:59 a. m. ******/
 SET ANSI_NULLS ON
 GO
@@ -154,7 +157,7 @@ CREATE TABLE [dbo].[ArchivosCanvas](
 	[GradeNum] [varchar](50) NOT NULL,
 	[GradeAlfa] [varchar](50) NOT NULL,
 	[Procesado] [bit] NOT NULL,
-	[Horas] [int] NOT NULL,
+	[Horas] [int] NULL,
 	[Destacado] [bit] NOT NULL,
 	[ComentarioDestacado] [varchar](6000) NOT NULL,
 	CONSTRAINT [PK_ArchivosCanvas] PRIMARY KEY CLUSTERED 
@@ -174,7 +177,7 @@ CREATE TABLE [dbo].[ArchivosCanvasFiltrado](
 	[GradeNum] [varchar](50) NOT NULL,
 	[GradeAlfa] [varchar](50) NOT NULL,
 	[Procesado] [bit] NOT NULL,
-	[Horas] [int] NOT NULL,
+	[Horas] [int] NULL,
 	[Destacado] [bit] NOT NULL,
 	[ComentarioDestacado] [varchar](6000) NOT NULL,
 	CONSTRAINT [PK_ArchivosCanvasFiltrado] PRIMARY KEY CLUSTERED 
@@ -183,6 +186,7 @@ CREATE TABLE [dbo].[ArchivosCanvasFiltrado](
 	)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
+PRINT N'tabla ArchivosCanvasFiltrado CREADA'
 
 CREATE TABLE [dbo].[ArchivosCargaCalificaciones](
 	[Id] [int] IDENTITY(1,1) NOT NULL,
@@ -201,6 +205,7 @@ CREATE TABLE [dbo].[ArchivosCargaCalificaciones](
 	)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
+PRINT N'tabla ArchivosCargaCalificaciones CREADA'
 
 CREATE TABLE [dbo].[ArchivosProcesados](
 	[Id] [int] IDENTITY(1,1) NOT NULL,
@@ -211,6 +216,7 @@ CREATE TABLE [dbo].[ArchivosProcesados](
 	)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
+PRINT N'tabla ArchivosProcesados CREADA'
 
 CREATE TABLE [dbo].[Bitacora_CargaCalificiones](
 	[Id] [int] IDENTITY(1,1) NOT NULL,
@@ -226,6 +232,7 @@ CREATE TABLE [dbo].[Bitacora_CargaCalificiones](
 	)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
+PRINT N'tabla Bitacora_CargaCalificiones CREADA'
 
 CREATE TABLE [dbo].[Bitacora_Correos](
 	[Id] [int] IDENTITY(1,1) NOT NULL,
@@ -244,6 +251,7 @@ CREATE TABLE [dbo].[Bitacora_Correos](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
+PRINT N'tabla Bitacora_Correos CREADA'
 
 CREATE TABLE [dbo].[Bitacora_GeneracionReportes](
 	[Id] [int] IDENTITY(1,1) NOT NULL,
@@ -257,6 +265,7 @@ CREATE TABLE [dbo].[Bitacora_GeneracionReportes](
 	)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
+PRINT N'tabla Bitacora_GeneracionReportes CREADA'
 
 CREATE TABLE [dbo].[Bitacora_MateriasExcepcion](
 	[Id] [int] IDENTITY(1,1) NOT NULL,
@@ -272,6 +281,7 @@ CREATE TABLE [dbo].[Bitacora_MateriasExcepcion](
 	)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
+PRINT N'tabla Bitacora_MateriasExcepcion CREADA'
 
 CREATE TABLE [dbo].[Bitacora_MateriasNormativa](
 	[Id] [int] IDENTITY(1,1) NOT NULL,
@@ -288,6 +298,7 @@ CREATE TABLE [dbo].[Bitacora_MateriasNormativa](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
+PRINT N'tabla Bitacora_MateriasNormativa CREADA'
 
 CREATE TABLE [dbo].[Bitacora_Normativas](
 	[Id] [int] IDENTITY(1,1) NOT NULL,
@@ -302,6 +313,7 @@ CREATE TABLE [dbo].[Bitacora_Normativas](
 	)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
+PRINT N'tabla Bitacora_Normativas CREADA'
 
 CREATE TABLE [dbo].[Bitacora_ProcesoAutomatico](
 	[Id] [int] IDENTITY(1,1) NOT NULL,
@@ -319,6 +331,7 @@ CREATE TABLE [dbo].[Bitacora_ProcesoAutomatico](
 	)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
+PRINT N'tabla Bitacora_ProcesoAutomatico CREADA'
 
 CREATE TABLE [dbo].[Bitacora_ProcesoSC](
 	[Id] [int] IDENTITY(1,1) NOT NULL,
@@ -336,6 +349,7 @@ CREATE TABLE [dbo].[Bitacora_ProcesoSC](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
+PRINT N'tabla Bitacora_ProcesoSC CREADA'
 
 CREATE TABLE [dbo].[Bitacora_RolesAdmin](
 	[Id] [int] IDENTITY(1,1) NOT NULL,
@@ -349,6 +363,7 @@ CREATE TABLE [dbo].[Bitacora_RolesAdmin](
 	)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
+PRINT N'tabla Bitacora_RolesAdmin CREADA'
 
 CREATE TABLE [dbo].[Bitacora_SubPeriodoCampus](
 	[Id] [int] IDENTITY(1,1) NOT NULL,
@@ -364,6 +379,7 @@ CREATE TABLE [dbo].[Bitacora_SubPeriodoCampus](
 	)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
+PRINT N'tabla Bitacora_SubPeriodoCampus CREADA'
 
 CREATE TABLE [dbo].[Bitacora_SubperiodoNacional](
 	[Id] [int] IDENTITY(1,1) NOT NULL,
@@ -378,6 +394,7 @@ CREATE TABLE [dbo].[Bitacora_SubperiodoNacional](
 	)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
+PRINT N'tabla Bitacora_SubperiodoNacional CREADA'
 
 CREATE TABLE [dbo].[CalificacionesEnviadasBanner](
 	[Id] [int] IDENTITY(1,1) NOT NULL,
@@ -390,7 +407,7 @@ CREATE TABLE [dbo].[CalificacionesEnviadasBanner](
 	[UsuarioCalifico] [varchar](50) NOT NULL,
 	[Comentarios] [varchar](4000) NOT NULL,
 	[SeEnvio] [bit] NOT NULL,
-	[Horas] [int] NOT NULL,
+	[Horas] [int] NULL,
 	[Destacado] [bit] NOT NULL,
 	[ComentarioDestacado] [varchar](6000) NOT NULL,
 	CONSTRAINT [PK_CalificacionesEnviadasBanner] PRIMARY KEY CLUSTERED 
@@ -399,6 +416,7 @@ CREATE TABLE [dbo].[CalificacionesEnviadasBanner](
 	)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
+PRINT N'tabla CalificacionesEnviadasBanner CREADA'
 
 CREATE TABLE [dbo].[CalificacionesEnviadasConsolidado](
 	[Id] [int] IDENTITY(1,1) NOT NULL,
@@ -412,6 +430,7 @@ CREATE TABLE [dbo].[CalificacionesEnviadasConsolidado](
 	)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
+PRINT N'tabla CalificacionesEnviadasConsolidado CREADA'
 
 CREATE TABLE [dbo].[CalificacionesPermitidas](
 	[Id] [int] IDENTITY(1,1) NOT NULL,
@@ -428,6 +447,7 @@ CREATE TABLE [dbo].[CalificacionesPermitidas](
 	)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
+PRINT N'tabla CalificacionesPermitidas CREADA'
 
 CREATE TABLE [dbo].[CatalogoBitacoras](
 	[Id] [int] IDENTITY(1,1) NOT NULL,
@@ -441,6 +461,7 @@ CREATE TABLE [dbo].[CatalogoBitacoras](
 	)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
+PRINT N'tabla CatalogoBitacoras CREADA'
 
 CREATE TABLE [dbo].[CatalogoNormativas](
 	[Id] [int] IDENTITY(1,1) NOT NULL,
@@ -453,6 +474,7 @@ CREATE TABLE [dbo].[CatalogoNormativas](
 	)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
+PRINT N'tabla CatalogoNormativas CREADA'
 
 CREATE TABLE [dbo].[ExcepciondeMaterias](
 	[Id] [int] IDENTITY(1,1) NOT NULL,
@@ -467,6 +489,7 @@ CREATE TABLE [dbo].[ExcepciondeMaterias](
 	)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
+PRINT N'tabla ExcepciondeMaterias CREADA'
 
 CREATE TABLE [dbo].[MateriasExclusiones](
 	[Id] [int] IDENTITY(1,1) NOT NULL,
@@ -484,6 +507,7 @@ CREATE TABLE [dbo].[MateriasExclusiones](
 	)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
+PRINT N'tabla MateriasExclusiones CREADA'
 
 CREATE TABLE [dbo].[MateriasNormativas](
 	[Id] [int] IDENTITY(1,1) NOT NULL,
@@ -503,6 +527,7 @@ CREATE TABLE [dbo].[MateriasNormativas](
 	)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
+PRINT N'tabla MateriasNormativas CREADA'
 
 CREATE TABLE [dbo].[MateriasServicioSocial](
 	[Id] [int] IDENTITY(1,1) NOT NULL,
@@ -510,19 +535,20 @@ CREATE TABLE [dbo].[MateriasServicioSocial](
 	[Curso] [varchar](20) NOT NULL,
 	[ClaveMateria] [varchar](50) NOT NULL,
 	[NombreMateria] [varchar](50) NOT NULL,
-	[HorasReprobado] [int] NOT NULL,
+	[HorasReprobado] [int] NULL,
 	[HorasMinimas] [int] NOT NULL,
 	[HorasMaximas] [int] NOT NULL,
 	[TERM] [varchar](10) NOT NULL,
 	[Vigencia] [datetime] NOT NULL,
 	[Activo] [bit] NOT NULL,
 	[FechaAgregado] [datetime] NOT NULL,
- CONSTRAINT [PK_MateriasServicioSocial] PRIMARY KEY CLUSTERED 
-(
-	[Id] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
-) ON [PRIMARY]
+	CONSTRAINT [PK_MateriasServicioSocial] PRIMARY KEY CLUSTERED 
+	(
+		[Id] ASC
+	)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+	) ON [PRIMARY]
 GO
+PRINT N'tabla MateriasServicioSocial CREADA'
 
 ALTER TABLE NORMATIVAS DROP CONSTRAINT PK_NORMATIVAS
 ALTER TABLE ROLES DROP CONSTRAINT PK_ROLES
@@ -548,6 +574,7 @@ CREATE TABLE [dbo].[Normativas](
 	)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
+PRINT N'tabla Normativas CREADA'
 
 CREATE TABLE [dbo].[Periodos](
 	[Id] [int] IDENTITY(1,1) NOT NULL,
@@ -560,6 +587,7 @@ CREATE TABLE [dbo].[Periodos](
 	)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 	) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
+PRINT N'tabla Periodos CREADA'
 
 CREATE TABLE [dbo].[ProcesarSC](
 	[Id] [int] IDENTITY(1,1) NOT NULL,
@@ -575,6 +603,7 @@ CREATE TABLE [dbo].[ProcesarSC](
 	)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 	) ON [PRIMARY]
 GO
+PRINT N'tabla ProcesarSC CREADA'
 
 
 CREATE TABLE [dbo].[SubperiodosCampus](
@@ -595,6 +624,7 @@ CREATE TABLE [dbo].[SubperiodosCampus](
 	)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
+PRINT N'tabla SubperiodosCampus CREADA'
 
 CREATE TABLE [dbo].[SubperiodosNacional](
 	[Id] [int] IDENTITY(1,1) NOT NULL,
@@ -612,6 +642,7 @@ CREATE TABLE [dbo].[SubperiodosNacional](
 	)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
+PRINT N'tabla SubperiodosNacional CREADA'
 
 CREATE TABLE [dbo].[SubperiodosNacionalCampusFechaFin](
 	[Id] [int] IDENTITY(1,1) NOT NULL,
@@ -625,6 +656,7 @@ CREATE TABLE [dbo].[SubperiodosNacionalCampusFechaFin](
 	)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 	) ON [PRIMARY]
 GO
+PRINT N'tabla SubperiodosNacionalCampusFechaFin CREADA'
 
 CREATE TABLE [dbo].[SubperiodosNacionalCampusFechaInicio](
 	[Id] [int] IDENTITY(1,1) NOT NULL,
@@ -638,6 +670,7 @@ CREATE TABLE [dbo].[SubperiodosNacionalCampusFechaInicio](
 	)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 	) ON [PRIMARY]
 GO
+PRINT N'tabla SubperiodosNacionalCampusFechaInicio CREADA'
 
 ALTER TABLE [Normativas] ADD CONSTRAINT FK_Normativas_CatalogoNormativas FOREIGN KEY ([NormativaId])
 REFERENCES CatalogoNormativas (Id)
@@ -659,6 +692,8 @@ CREATE TABLE [dbo].[Usuarios](
 	)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
+PRINT N'tabla Usuarios CREADA'
+
 EXEC sp_rename 'ROLES','ROLES_tmp'
 
 CREATE TABLE [dbo].[Roles](
@@ -671,6 +706,7 @@ CREATE TABLE [dbo].[Roles](
 	)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
+PRINT N'tabla Roles CREADA'
 
 CREATE TABLE [dbo].[RolesUsuario](
 	[Id] [int] IDENTITY(1,1) NOT NULL,
@@ -684,8 +720,26 @@ CREATE TABLE [dbo].[RolesUsuario](
 	)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
+PRINT N'tabla RolesUsuario CREADA'
 
 ALTER TABLE [RolesUsuario] ADD CONSTRAINT FK_RolesUsuario_Usuarios FOREIGN KEY ([UsuariosNomina])
 REFERENCES Usuarios (Nomina)
 ALTER TABLE [RolesUsuario] ADD CONSTRAINT FK_RolesUsuario_Roles FOREIGN KEY ([RolesId])
 REFERENCES Roles (Id)
+
+CREATE UNIQUE NONCLUSTERED INDEX [IX_SubperiodosNacional]
+    ON [dbo].[SubperiodosNacional]([Idperiodo] ASC, [SubperiodoNacionalId] ASC);
+GO
+PRINT N'Creando [dbo].[FK_SubperiodosNacionalCampusFechaFin_SubperiodosNacionalCampusFechaFin]...';
+GO
+ALTER TABLE [dbo].[SubperiodosNacionalCampusFechaFin] WITH NOCHECK
+    ADD CONSTRAINT [FK_SubperiodosNacionalCampusFechaFin_SubperiodosNacionalCampusFechaFin] FOREIGN KEY ([Idperiodo], [IdperiodoNacional]) REFERENCES [dbo].[SubperiodosNacional] ([Idperiodo], [SubperiodoNacionalId]);
+GO
+PRINT N'Creando [dbo].[FK_SubperiodosNacionalCampusFechaInicio_SubperiodosNacional]...';
+GO
+ALTER TABLE [dbo].[SubperiodosNacionalCampusFechaInicio] WITH NOCHECK
+    ADD CONSTRAINT [FK_SubperiodosNacionalCampusFechaInicio_SubperiodosNacional] FOREIGN KEY ([Idperiodo], [IdperiodoNacional]) REFERENCES [dbo].[SubperiodosNacional] ([Idperiodo], [SubperiodoNacionalId]);
+GO
+ALTER TABLE [dbo].[SubperiodosNacionalCampusFechaFin] WITH CHECK CHECK CONSTRAINT [FK_SubperiodosNacionalCampusFechaFin_SubperiodosNacionalCampusFechaFin];
+ALTER TABLE [dbo].[SubperiodosNacionalCampusFechaInicio] WITH CHECK CHECK CONSTRAINT [FK_SubperiodosNacionalCampusFechaInicio_SubperiodosNacional];
+
