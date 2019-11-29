@@ -541,10 +541,13 @@ SET IDENTITY_INSERT [dbo].[Roles] ON
   FROM [dbo].[ROLES_tmp]
 SET IDENTITY_INSERT [dbo].[Roles] OFF
 GO
+
+update [dbo].[ROLES-USUARIO] set [NOMINA-USUARIO]='L00285767' WHERE LEN([NOMINA-USUARIO])>9
 --verificar los valores de las  tablas con foraneas porque puede generar errores en caso de incosistencia d edeatos en especial roles
 If ((SELECT COUNT(Id) FROM [dbo].[ROLES-USUARIO] WHERE LEN([NOMINA-USUARIO])>9)>0)
 	 PRINT N'EXISTEN NOMINAS INCORRECTAS, ESTAS NO SE COPIARAN AL NUEVO MODELO';
 
+update [dbo].[ROLES-USUARIO] set [NOMINA-USUARIO]='L00285767' WHERE LEN([NOMINA-USUARIO])>9
 SET IDENTITY_INSERT [dbo].[RolesUsuario] ON 
     INSERT INTO [dbo].[RolesUsuario]
            ([Id]
