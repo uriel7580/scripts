@@ -208,7 +208,7 @@ CREATE PROCEDURE [dbo].[spArchivosCanvas_CargarValores]
 			SET NOCOUNT ON;
 			DECLARE @RES_EXISTE		INT
 			-- INSERTA LOS DATOS EN ArchivosCanvas
-			IF (@PIDM_PROFESOR  != null AND	@PIDM_ALUMNO !=null) 
+			IF (@PIDM_PROFESOR  is not null AND	@PIDM_ALUMNO is not null) 
 				BEGIN	
 					SET @RES_EXISTE  = (SELECT Id FROM dbo.ArchivosCanvas 
 										WHERE Periodo=@PERIODO AND CRN=@CRN AND PIDMAlumno=@PIDM_ALUMNO)
